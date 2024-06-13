@@ -57,8 +57,7 @@ class AtomsToGraphs:
     def extxyz_input_iterator(self):
         frames=ase.io.read(oj(self.path_in,'frames.xyz'),index=':',format='extxyz')
         for atoms in frames:
-            y=torch.Tensor(atoms.info['target'])
-            yield atoms.info['id'],atoms,y
+            yield atoms.info['id'],atoms
 
     def convert(self):
         datas=[]
@@ -82,7 +81,7 @@ class AtomsToGraphs:
             normalize=True
         )
         it=self.extxyz_input_iterator()
-        for structure_id,atoms,y in it:
+        for structure_id,atoms in it:
             data=Data()
             distance_vec=atoms.get_all_distances(mic=True,vector=True)
             r=numpy.linalg.norm(distance_vec,axis=2)
@@ -97,8 +96,7 @@ class AtomsToGraphs:
             nodes_i=idx[0]
             nodes_j=idx[1]
             data.edge_index=torch.LongTensor(numpy.array([nodes_j,nodes_i],dtype=int))
-            data.y=y
-            data.structure_id=[[structure_id]*len(data.y)]
+            data.structure_id=[[structure_id]*len(atoms)]
             data.Z=torch.tensor(atoms.get_atomic_numbers(),dtype=torch.long)
             data.vol=torch.tensor(_cell_vol(atoms.get_cell()))
             data.num_nodes=torch.tensor(len(atoms),dtype=torch.int)
