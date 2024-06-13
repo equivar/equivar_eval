@@ -1,0 +1,3 @@
+data_dir: data
+saved_model_path: BM1.pt
+ouput_path: evaluated.csv

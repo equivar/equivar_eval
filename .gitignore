@@ -1,0 +1,4 @@
+__pycache__/
+build/
+equivar_eval.egg-info/
+*.pyc
