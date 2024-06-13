@@ -1,0 +1,7 @@
+ase
+numpy
+PyYAML
+torch
+torch_geometric
+torch_scatter
+e3nn
