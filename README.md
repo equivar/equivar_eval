@@ -10,7 +10,7 @@ pip install wheel
 pip install numpy
 ```
 
-Install pytorch and pytorch geometric
+Install pytorch
 ```sh
 pip install torch torchvision torchaudio
 ```
