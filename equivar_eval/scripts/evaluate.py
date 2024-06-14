@@ -2,12 +2,17 @@ import sys
 import logging
 import importlib.metadata
 import time
+import math
+import numpy
 import torch
 from torch_geometric.loader import DataLoader
-import numpy
 import csv
 from equivar_eval.config import g_config
 from equivar_eval.process import AtomsToGraphs,InMemoryDatasetUtil
+
+SQ2_1=1.0/math.sqrt(2.0)
+SQ3_1=1.0/math.sqrt(3.0)
+SQ23_1=SQ2_1*SQ3_1
 
 def write_csv(datas,path_out):
     '''Write results to a csv file
@@ -28,16 +33,31 @@ def main():
     _ver=importlib.metadata.version('equivar_eval')
     logging.info(f'equivar_eval version {_ver}')
 
-    device_count=torch.cuda.device_count()
-    if device_count==0:
-        logging.info('Running on CPU')
+    cuda_device_count=torch.cuda.device_count()
+    if cuda_device_count==0:
         device='cpu'
-    elif device_count==1:
-        logging.info('Running on a single GPU')
+        logging.info(f'Running on CPU (device={device})')
+    elif cuda_device_count==1:
         device='cuda'
+        logging.info(f'Running on a single GPU (device={device})')
     else:
-        logging.warning(f'{device_count} GPUs are present, but parallel job is not implemented yet')
         device='cuda'
+        logging.warning(f'{cuda_device_count} GPUs are present, but parallel job is not implemented yet, running on a single GPU (device={device})')
+
+    cob=torch.tensor(
+    [
+        [SQ3_1, 0.0,   0.0,  -SQ23_1,     0.0,  -SQ2_1, 0.0,   0.0,   0.0,  ],     # t11
+        [0.0,   0.0,   SQ2_1, 0.0,        0.0,   0.0,   0.0,   0.0,   SQ2_1,],     # t12
+        [0.0,   SQ2_1, 0.0,   0.0,        0.0,   0.0,   0.0,  -SQ2_1, 0.0,  ],     # t13
+        [0.0,   0.0,   SQ2_1, 0.0,        0.0,   0.0,   0.0,   0.0,  -SQ2_1,],     # t21
+        [SQ3_1, 0.0,   0.0,   2.0*SQ23_1, 0.0,   0.0,   0.0,   0.0,   0.0,  ],     # t22
+        [0.0,   0.0,   0.0,   0.0,        SQ2_1, 0.0,   SQ2_1, 0.0,   0.0,  ],     # t23
+        [0.0,   SQ2_1, 0.0,   0.0,        0.0,   0.0,   0.0,   SQ2_1, 0.0,  ],     # t31
+        [0.0,   0.0,   0.0,   0.0,        SQ2_1, 0.0,  -SQ2_1, 0.0,   0.0,  ],     # t32
+        [SQ3_1, 0.0,   0.0,  -SQ23_1,     0.0,   SQ2_1, 0.0,   0.0,   0.0,  ],     # t33
+    ],dtype=torch.get_default_dtype()
+    ).T
+    cob=cob.to(device)
 
     _saved_model_path=g_config['saved_model_path']
     logging.info(f'loading model from \'{_saved_model_path}\'')
@@ -75,6 +95,7 @@ def main():
         for i,data in enumerate(data_loader):
             data=data.to(device)
             out=model(data)
+            out=out@cob
             _o=out.cpu().numpy()
             predictions=_o if i==0 else numpy.vstack((predictions,_o))
             ids_temp=[_id_atom for _batch in data.structure_id for _dummy in _batch for _id_atom in _dummy]

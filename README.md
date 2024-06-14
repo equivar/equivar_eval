@@ -13,9 +13,6 @@ pip install numpy
 Install pytorch and pytorch geometric
 ```sh
 pip install torch torchvision torchaudio
-pip install torch-scatter
-pip install torch-sparse
-pip install torch-geometric
 ```
 (if some old version of cuda library is installed, it may be necessary to install specific version of pytorch, see https://pytorch.org/get-started/locally/ for more details)
 
