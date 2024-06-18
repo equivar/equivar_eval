@@ -96,7 +96,7 @@ class AtomsToGraphs:
             nodes_i=idx[0]
             nodes_j=idx[1]
             data.edge_index=torch.LongTensor(numpy.array([nodes_j,nodes_i],dtype=int))
-            data.structure_id=[[structure_id]*len(atoms)]
+            data.structure_id=torch.LongTensor(numpy.array([structure_id]*len(atoms),dtype=int))
             data.Z=torch.tensor(atoms.get_atomic_numbers(),dtype=torch.long)
             data.vol=torch.tensor(_cell_vol(atoms.get_cell()))
             data.num_nodes=torch.tensor(len(atoms),dtype=torch.int)

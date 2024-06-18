@@ -99,7 +99,7 @@ def main():
             out=out@cob
             _o=out.cpu().numpy()
             predictions=_o if i==0 else numpy.vstack((predictions,_o))
-            ids_temp=[_id_atom for _batch in data.structure_id for _dummy in _batch for _id_atom in _dummy]
+            ids_temp=[_id_atom for _id_atom in data.structure_id.cpu().numpy()]
             if i==0:
                 ids=ids_temp
             else:
