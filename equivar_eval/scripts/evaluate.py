@@ -61,7 +61,7 @@ def main():
 
     _saved_model_path=g_config['saved_model_path']
     logging.info(f'loading model from \'{_saved_model_path}\'')
-    model=torch.load(_saved_model_path,map_location=torch.device(device))
+    model=torch.jit.load(_saved_model_path,map_location=torch.device(device))
     logging.info('Done')
     model.eval()
     logging.info(f'Converting input data')
@@ -94,7 +94,8 @@ def main():
     with torch.no_grad():
         for i,data in enumerate(data_loader):
             data=data.to(device)
-            out=model(data)
+            data_dict=data.to_dict()
+            out=model(data_dict)
             out=out@cob
             _o=out.cpu().numpy()
             predictions=_o if i==0 else numpy.vstack((predictions,_o))
