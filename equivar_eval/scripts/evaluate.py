@@ -44,6 +44,21 @@ def main():
         device='cuda'
         logging.warning(f'{cuda_device_count} GPUs are present, but parallel job is not implemented yet, running on a single GPU (device={device})')
 
+    cob=torch.tensor(
+    [
+        [SQ3_1, 0.0,   0.0,  -SQ23_1,     0.0,  -SQ2_1, 0.0,   0.0,   0.0,  ],     # t11
+        [0.0,   0.0,   SQ2_1, 0.0,        0.0,   0.0,   0.0,   0.0,   SQ2_1,],     # t12
+        [0.0,   SQ2_1, 0.0,   0.0,        0.0,   0.0,   0.0,  -SQ2_1, 0.0,  ],     # t13
+        [0.0,   0.0,   SQ2_1, 0.0,        0.0,   0.0,   0.0,   0.0,  -SQ2_1,],     # t21
+        [SQ3_1, 0.0,   0.0,   2.0*SQ23_1, 0.0,   0.0,   0.0,   0.0,   0.0,  ],     # t22
+        [0.0,   0.0,   0.0,   0.0,        SQ2_1, 0.0,   SQ2_1, 0.0,   0.0,  ],     # t23
+        [0.0,   SQ2_1, 0.0,   0.0,        0.0,   0.0,   0.0,   SQ2_1, 0.0,  ],     # t31
+        [0.0,   0.0,   0.0,   0.0,        SQ2_1, 0.0,  -SQ2_1, 0.0,   0.0,  ],     # t32
+        [SQ3_1, 0.0,   0.0,  -SQ23_1,     0.0,   SQ2_1, 0.0,   0.0,   0.0,  ],     # t33
+    ],dtype=torch.get_default_dtype()
+    ).T
+    cob=cob.to(device)
+
     _saved_model_path=g_config['saved_model_path']
     logging.info(f'loading model from \'{_saved_model_path}\'')
     model=torch.jit.load(_saved_model_path,map_location=torch.device(device))
@@ -84,6 +99,7 @@ def main():
                 # torch geometric saves value at this key as a list, while jit expects a tensor
                 data_dict['_num_nodes']=torch.tensor(data_dict['_num_nodes'],dtype=data_dict['_num_nodes'][0].dtype)
             out=model(data_dict)
+            out=out@cob
             _o=out.cpu().numpy()
             predictions=_o if i==0 else numpy.vstack((predictions,_o))
             ids_temp=[_id_atom for _id_atom in data.structure_id.cpu().numpy()]
