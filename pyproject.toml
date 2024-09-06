@@ -18,7 +18,7 @@ name = "equivar_eval"  # Required
 #
 # For a discussion on single-sourcing the version, see
 # https://packaging.python.org/guides/single-sourcing-package-version/
-dynamic = ["version"] # Required
+dynamic = ["version","dependencies",] # Required
 
 # This is an optional longer description of your project that represents
 # the body of text which users will see when they visit PyPI.
@@ -59,3 +59,4 @@ equivar-eval='equivar_eval.scripts.evaluate:main'
 
 [tool.setuptools.dynamic]
 version = {attr = "equivar_eval.__version__"}
+dependencies = {file = ["requirements.in"] }
