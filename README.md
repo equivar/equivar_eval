@@ -19,6 +19,7 @@ pip install torch
 After downloading `equivar_eval`, install with
 `cd equivar_eval ; pip install -r requirements.txt ; pip install . ;`
 
+Installations of `torch_geometric`, `torch_scatter`, and `torch_sparse` should proceed automatically from `requirements.txt` without any further actions required from user. If this is not the case, and `torch_geometric` does not install, please check instructions for installing`torch_geometric` at https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html
 
 ## Running the script
 Run the script using the command `equivar-eval`.
