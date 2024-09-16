@@ -4,22 +4,16 @@ This package contains scripts for running the Equivar model for prediction of Bo
 
 ## Installation
 
+After downloading `equivar_eval`, install with
 ```sh
 pip3 install --upgrade pip
 pip install wheel
-pip install numpy
+cd equivar_eval ; pip install -r requirements.txt ; pip install . ;
 ```
 
-Install pytorch
-```sh
-pip install torch
-```
-(if some old version of cuda library is installed, it may be necessary to install specific version of pytorch, see https://pytorch.org/get-started/locally/ for more details)
 
-After downloading `equivar_eval`, install with
-`cd equivar_eval ; pip install -r requirements.txt ; pip install . ;`
+Installations of `pytorch` and `torch_geometric` should proceed automatically from `requirements.txt` without any further actions required from user. If this is not the case, see https://pytorch.org/get-started/locally/ for `pytorch` installation, and https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html for `torch_geometric` installation.
 
-Installations of `torch_geometric`, `torch_scatter`, and `torch_sparse` should proceed automatically from `requirements.txt` without any further actions required from user. If this is not the case, and `torch_geometric` does not install, please check instructions for installing`torch_geometric` at https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html
 
 ## Running the script
 Run the script using the command `equivar-eval`.
