@@ -100,6 +100,7 @@ class AtomsToGraphs:
             data.Z=torch.tensor(atoms.get_atomic_numbers(),dtype=torch.long)
             data.vol=torch.tensor(_cell_vol(atoms.get_cell()))
             data.num_nodes=torch.tensor(len(atoms),dtype=torch.int)
+            data.Natoms=torch.tensor(len(atoms),dtype=torch.long)
             datas.append(data)
         logging.info(f'data size: {len(datas)}')
         data,slices=InMemoryDataset.collate(datas)

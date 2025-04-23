@@ -5,6 +5,7 @@ import time
 import math
 import numpy
 import torch
+import torch_scatter
 from torch_geometric.loader import DataLoader
 import csv
 from equivar_eval.config import g_config
@@ -100,6 +101,11 @@ def main():
                 data_dict['_num_nodes']=torch.tensor(data_dict['_num_nodes'],dtype=data_dict['_num_nodes'][0].dtype)
             out=model(data_dict)
             out=out@cob
+            # remove any 'drift' from Born charges, i.e., enforce charge neutrality
+            # acoustic sum rule, eq 46 in Gonze97, or eq 6.4 in Pick70
+            _s=torch_scatter.scatter(out,data_dict['batch'],dim=0,reduce='sum')/data_dict['Natoms'][:,None]
+            _index=torch.unsqueeze(data_dict['batch'],1).expand(-1,out.shape[1])
+            out=out-torch.gather(_s,dim=0,index=_index)
             _o=out.cpu().numpy()
             predictions=_o if i==0 else numpy.vstack((predictions,_o))
             ids_temp=[_id_atom for _id_atom in data.structure_id.cpu().numpy()]
